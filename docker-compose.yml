@@ -1,0 +1,65 @@
+---
+
+services:
+  clickhouse:
+    image: $CLICK_IMAGE
+    container_name: $CLICK_NAME
+    restart: unless-stopped
+    ports:
+      - "$TCP_PORT:9000"
+      - "$HTTP_PORT:8123"
+      - "$GRCP_PORT:9009"
+      - "$HTTPS_PORT:9440"
+    volumes:
+      - ./clickhouse_data:/var/lib/clickhouse:z
+      - ./clickhouse_logs:/var/log/clickhouse-server:z
+      - ./clickhouse/config.d:/etc/clickhouse-server/config.d:z
+      - ./clickhouse/users.d:/etc/clickhouse-server/users.d:z
+    ulimits:
+      nofile:
+        soft: $SOFT_LIMITS
+        hard: $HARD_LIMITS
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:8123/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    environment:
+      - CLICKHOUSE_DB=$CLICKHOUSE_DB
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=$ACCESS_MANAGEMENT
+      # - CLICKHOUSE_USER=$CLICKHOUSE_USER
+      # - CLICKHOUSE_PASSWORD=$CLICKHOUSE_PASSWORD
+
+  # clickhouse-client:
+  #   image: $CLICK_IMAGE
+  #   container_name: $CLIENT_NAME
+  #   restart: unless-stopped
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_healthy
+  #   command: [clickhouse-client, --host, clickhouse]
+  #   tty: true
+  #   stdin_open: true
+    # command:
+    #   - clickhouse-client
+    #   - --host
+    #   - clickhouse
+    #   - --port
+    #   - "9000"
+  clickhouse-client:
+    container_name: clickhouse-client
+    image: clickhouse:25.9.5.21
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    networks:
+      default: null
+    command:
+      - clickhouse-client
+      - --host
+      - clickhouse
+      - --port
+      - "9000"
