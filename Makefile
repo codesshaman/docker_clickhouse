@@ -13,6 +13,7 @@ PURPLE='\e[1;35m'       # Purple
 CYAN='\e[1;36m'         # Cyan
 WHITE='\e[1;37m'        # White
 UCYAN='\e[4;36m'        # Cyan
+FILE_PATH:=$(word 2, $(MAKECMDGOALS))
 ifneq (,$(wildcard .env))
     include .env
     export $(shell sed 's/=.*//' .env)
@@ -35,6 +36,7 @@ help:
 	@echo -e "$(WARN_COLOR)- make re			: Rebuild configuration"
 	@echo -e "$(WARN_COLOR)- make ps			: View configuration"
 	@echo -e "$(WARN_COLOR)- make push			: Push changes to the github"
+	@echo -e "$(WARN_COLOR)- make track			: Switch off git file/folder tracking"
 	@echo -e "$(WARN_COLOR)- make clean			: Cleaning configuration$(NO_COLOR)"
 
 build:
@@ -96,6 +98,10 @@ ps:
 
 push:
 	@bash scripts/push.sh
+
+track:
+	@$(eval args := $(words $(filter-out --,$(MAKECMDGOALS))))
+	@bash scripts/track.sh ${FILE_PATH};
 
 clean: down
 	@printf "$(ERROR_COLOR)==== Cleaning configuration ${name}... ====$(NO_COLOR)\n"
