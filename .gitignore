@@ -1,1 +1,4 @@
+clickhouse_logs
+clickhouse_data
+clickhouse
 .env
