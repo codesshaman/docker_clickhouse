@@ -1,4 +1,0 @@
-<clickhouse>
-    <!-- Отключаем автосоздание пользователя в entrypoint -->
-    <skip_user_creation>1</skip_user_creation>
-</clickhouse>

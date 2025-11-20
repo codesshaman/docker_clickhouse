@@ -1,4 +1,4 @@
-name = PostgreSQL
+name = ClickHouse
 
 NO_COLOR=\033[0m		# Color Reset
 COLOR_OFF='\e[0m'       # Color Off
@@ -36,7 +36,6 @@ help:
 	@echo -e "$(WARN_COLOR)- make re			: Rebuild configuration"
 	@echo -e "$(WARN_COLOR)- make ps			: View configuration"
 	@echo -e "$(WARN_COLOR)- make push			: Push changes to the github"
-	@echo -e "$(WARN_COLOR)- make track			: Switch off git file/folder tracking"
 	@echo -e "$(WARN_COLOR)- make clean			: Cleaning configuration$(NO_COLOR)"
 
 build:
@@ -54,6 +53,10 @@ con:
 conn:
 	@printf "$(OK_COLOR)==== Connect to database ${name}... ====$(NO_COLOR)\n"
 	@docker exec -it clickhouse bash
+
+client:
+	@printf "$(OK_COLOR)==== Connect to database from client... ====$(NO_COLOR)\n"
+	@docker compose exec clickhouse-client clickhouse-client
 
 down:
 	@printf "$(ERROR_COLOR)==== Stopping configuration ${name}... ====$(NO_COLOR)\n"
@@ -98,10 +101,6 @@ ps:
 
 push:
 	@bash scripts/push.sh
-
-track:
-	@$(eval args := $(words $(filter-out --,$(MAKECMDGOALS))))
-	@bash scripts/track.sh ${FILE_PATH};
 
 clean: down
 	@printf "$(ERROR_COLOR)==== Cleaning configuration ${name}... ====$(NO_COLOR)\n"

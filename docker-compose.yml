@@ -2,53 +2,41 @@
 
 services:
   clickhouse:
-    image: $CLICK_IMAGE
-    container_name: $CLICK_NAME
+    image: ${CLICK_IMAGE}
+    container_name: ${CLICK_NAME}
+    hostname: clickhouse
     restart: unless-stopped
-    ports:
-      - "$TCP_PORT:9000"
-      - "$HTTP_PORT:8123"
-      - "$GRCP_PORT:9009"
-      - "$HTTPS_PORT:9440"
     volumes:
       - ./clickhouse_data:/var/lib/clickhouse:z
       - ./clickhouse_logs:/var/log/clickhouse-server:z
-      - ./clickhouse/config.d:/etc/clickhouse-server/config.d:z
-      - ./clickhouse/users.d:/etc/clickhouse-server/users.d:z
+      - ./clickhouse/config.d/mysql.xml:/etc/clickhouse-server/config.d/mysql.xml:ro
+      - ./clickhouse/config.d/postgres.xml:/etc/clickhouse-server/config.d/postgres.xml:ro
+      - ./clickhouse/config.d/disable-telemetry.xml:/etc/clickhouse-server/config.d/disable-telemetry.xml:ro
+    environment:
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PWD}
+      CLICKHOUSE_LOG_LEVEL: WARNING
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query=SELECT 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
     ulimits:
       nofile:
-        soft: $SOFT_LIMITS
-        hard: $HARD_LIMITS
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "localhost:8123/ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    environment:
-      - CLICKHOUSE_DB=$CLICKHOUSE_DB
-      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=$ACCESS_MANAGEMENT
-      # - CLICKHOUSE_USER=$CLICKHOUSE_USER
-      # - CLICKHOUSE_PASSWORD=$CLICKHOUSE_PASSWORD
+        soft: ${SOFT_LIMITS}
+        hard: ${HARD_LIMITS}
+    ports:
+      - "${HTTP_PORT}:8123"
+      - "${TCP_PORT}:9000"
+      - "${GRCP_PORT}:9004"
+      - "${HTTPS_PORT}:9005"
+   
 
-  # clickhouse-client:
-  #   image: $CLICK_IMAGE
-  #   container_name: $CLIENT_NAME
-  #   restart: unless-stopped
-  #   depends_on:
-  #     clickhouse:
-  #       condition: service_healthy
-  #   command: [clickhouse-client, --host, clickhouse]
-  #   tty: true
-  #   stdin_open: true
-    # command:
-    #   - clickhouse-client
-    #   - --host
-    #   - clickhouse
-    #   - --port
-    #   - "9000"
   clickhouse-client:
-    container_name: clickhouse-client
-    image: clickhouse:25.9.5.21
+    container_name: ${CLIENT_NAME}
+    image: ${CLICK_IMAGE}
     depends_on:
       clickhouse:
         condition: service_healthy
