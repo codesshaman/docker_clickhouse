@@ -43,11 +43,3 @@ services:
     restart: unless-stopped
     stdin_open: true
     tty: true
-    networks:
-      default: null
-    command:
-      - clickhouse-client
-      - --host
-      - clickhouse
-      - --port
-      - "9000"
