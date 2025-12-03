@@ -7,16 +7,14 @@ services:
     hostname: clickhouse
     restart: unless-stopped
     volumes:
-      - ./clickhouse_data:/var/lib/clickhouse:z
+      - ${CLICKHOUSE_DIR}:/var/lib/clickhouse:z
       - ./clickhouse_logs:/var/log/clickhouse-server:z
-      - ./clickhouse/user.d:/etc/clickhouse-server/users.d:z
       - ./clickhouse/config.d/mysql.xml:/etc/clickhouse-server/config.d/mysql.xml:ro
       - ./clickhouse/config.d/postgres.xml:/etc/clickhouse-server/config.d/postgres.xml:ro
       - ./clickhouse/config.d/disable-telemetry.xml:/etc/clickhouse-server/config.d/disable-telemetry.xml:ro
+      - ./clickhouse/users.d/admin.xml:/etc/clickhouse-server/users.d/admin.xml:z
     environment:
-      CLICKHOUSE_DB: ${CLICKHOUSE_DB}
-      CLICKHOUSE_USER: ${CLICKHOUSE_USER}
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PWD}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
       CLICKHOUSE_LOG_LEVEL: WARNING
     healthcheck:
       test: ["CMD", "clickhouse-client", "--query=SELECT 1"]
@@ -24,6 +22,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+    stdin_open: true
+    tty: true
     ulimits:
       nofile:
         soft: ${SOFT_LIMITS}
@@ -33,14 +33,3 @@ services:
       - "${TCP_PORT}:9000"
       - "${GRCP_PORT}:9004"
       - "${HTTPS_PORT}:9005"
-   
-
-  clickhouse-client:
-    container_name: ${CLIENT_NAME}
-    image: ${CLICK_IMAGE}
-    depends_on:
-      clickhouse:
-        condition: service_healthy
-    restart: unless-stopped
-    stdin_open: true
-    tty: true

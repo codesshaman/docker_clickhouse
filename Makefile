@@ -19,6 +19,11 @@ ifneq (,$(wildcard .env))
     export $(shell sed 's/=.*//' .env)
 endif
 
+
+admin:
+	@printf "$(OK_COLOR)==== Connect to database from client... ====$(NO_COLOR)\n"
+	@docker compose exec clickhouse clickhouse-client -u admin --password=$(CLICKHOUSE_PWD)
+
 all:
 	@printf "Launch configuration ${name}...\n"
 	@docker-compose -f ./docker-compose.yml up -d
@@ -26,10 +31,11 @@ all:
 help:
 	@echo -e "$(OK_COLOR)==== All commands of ${name} configuration ====$(NO_COLOR)"
 	@echo -e "$(WARN_COLOR)- make				: Launch configuration"
+	@echo -e "$(WARN_COLOR)- make admin			: Conect to db from admin"
 	@echo -e "$(WARN_COLOR)- make build			: Building configuration"
-	@echo -e "$(WARN_COLOR)- make client			: Conect to db from client"
 	@echo -e "$(WARN_COLOR)- make config			: Show configuration"
 	@echo -e "$(WARN_COLOR)- make conn			: Connect to container"
+	@echo -e "$(WARN_COLOR)- make default			: Conect to db from default user"
 	@echo -e "$(WARN_COLOR)- make down			: Stopping configuration"
 	@echo -e "$(WARN_COLOR)- make env			: Create environment"
 	@echo -e "$(WARN_COLOR)- make git			: Set user and mail for git"
@@ -55,9 +61,9 @@ conn:
 	@printf "$(OK_COLOR)==== Connect to database ${name}... ====$(NO_COLOR)\n"
 	@docker exec -it clickhouse bash
 
-client:
+default:
 	@printf "$(OK_COLOR)==== Connect to database from client... ====$(NO_COLOR)\n"
-	@docker compose exec clickhouse-client clickhouse-client
+	@docker compose exec clickhouse clickhouse-client
 
 down:
 	@printf "$(ERROR_COLOR)==== Stopping configuration ${name}... ====$(NO_COLOR)\n"
