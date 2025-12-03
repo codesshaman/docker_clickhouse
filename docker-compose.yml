@@ -9,10 +9,10 @@ services:
     volumes:
       - ${CLICKHOUSE_DIR}:/var/lib/clickhouse:z
       - ./clickhouse_logs:/var/log/clickhouse-server:z
+      - ./clickhouse/users.d/admin.xml:/etc/clickhouse-server/users.d/admin.xml:z
       - ./clickhouse/config.d/mysql.xml:/etc/clickhouse-server/config.d/mysql.xml:ro
       - ./clickhouse/config.d/postgres.xml:/etc/clickhouse-server/config.d/postgres.xml:ro
       - ./clickhouse/config.d/disable-telemetry.xml:/etc/clickhouse-server/config.d/disable-telemetry.xml:ro
-      - ./clickhouse/users.d/admin.xml:/etc/clickhouse-server/users.d/admin.xml:z
     environment:
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
       CLICKHOUSE_LOG_LEVEL: WARNING
