@@ -9,10 +9,10 @@ services:
     volumes:
       - ./clickhouse_data:/var/lib/clickhouse:z
       - ./clickhouse_logs:/var/log/clickhouse-server:z
+      - ./clickhouse/user.d:/etc/clickhouse-server/users.d:z
       - ./clickhouse/config.d/mysql.xml:/etc/clickhouse-server/config.d/mysql.xml:ro
       - ./clickhouse/config.d/postgres.xml:/etc/clickhouse-server/config.d/postgres.xml:ro
       - ./clickhouse/config.d/disable-telemetry.xml:/etc/clickhouse-server/config.d/disable-telemetry.xml:ro
-      - ./clickhouse/config.d/user.d/default-user.xml:/etc/clickhouse-server/users.d/default-user.xml:ro
     environment:
       CLICKHOUSE_DB: ${CLICKHOUSE_DB}
       CLICKHOUSE_USER: ${CLICKHOUSE_USER}
