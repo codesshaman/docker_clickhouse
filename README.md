@@ -8,13 +8,9 @@ Create environment file:
 
 ``make env``
 
-Change passwords and any data:
+Change user passwords, storege path and any data:
 
 ``nano .env``
-
-Create external network:
-
-``make net``
 
 Build:
 
