@@ -1,0 +1,4 @@
+<!-- /etc/clickhouse-server/config.d/timezone.xml -->
+<clickhouse>
+    <timezone>Europe/Moscow</timezone>
+</clickhouse>
